@@ -1,0 +1,21 @@
+<?php
+
+/**
+ * @file: Install hooks for properties
+ */
+
+ /**
+  * Implements hook_update().
+  * Clear webform which are in Draft state.
+  */
+function properties_update_7001() {
+  module_load_include('inc', 'webform', 'includes/webform.submissions');
+  $result = db_query('SELECT w.nid, w.sid FROM {webform_submissions} w WHERE w.is_draft = 1');
+
+  foreach ($result as $record) {
+    $node = node_load($record->nid);
+    $submissions = webform_get_submission($record->nid, $record->sid);
+    webform_submission_delete($node, $submissions);
+  }
+
+}

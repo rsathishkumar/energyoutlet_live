@@ -1,0 +1,74 @@
+<?php
+function properties_theme() {
+  return array(
+    'propertiesbuild' => array(
+        'variables' => array('propertiesloaded' => array()),
+        'template' => 'properties',
+     ),
+  );
+}
+
+function properties_form_alter(&$form, &$form_state, $form_id) {
+
+  if ($form_id == 'rebate_node_form') {
+/*
+echo "<pre>";
+  print_r($form);
+echo "</pre>";
+  exit;
+  */
+}
+  if($form_id == 'user_register_form' || $form_id == 'user_profile_form') {
+    global $user;
+    if (!in_array('administrator', $user->roles)) {
+     $form['field_box_com_link']['#access'] = FALSE;
+    }
+  }
+}
+function properties_form_user_admin_account_alter(&$form, &$form_state, $form_id) {
+  $uid_column = array('cname' => array(
+    'data'  => 'Company Name',
+    'field' => 'u.cname'
+  ));
+  $uid_column1 = array('fname' => array(
+    'data'  => 'First Name',
+    'field' => 'u.fname'
+  ));
+  $form['accounts']['#header'] = $uid_column1 + $form['accounts']['#header'];
+ $form['accounts']['#header'] = $uid_column + $form['accounts']['#header'];
+
+  foreach ($form['accounts']['#options'] as $key => $row) {
+  $userProfile = user_load($key);  // this will have all user profile object which can be used below instead of $key.
+
+    $form['accounts']['#options'][$key]['cname'] = $userProfile->field_company_name['und'][0]['value'];
+	$form['accounts']['#options'][$key]['fname'] = $userProfile->field_first_name['und'][0]['value'];
+	
+  }
+}
+
+function properties_menu() {
+    $items['properties'] = array(
+       'title' => 'User page',
+       'description' => 'User page',
+       'page callback' => 'properties_exe',
+       'access callback' => TRUE,
+       'type' => MENU_CALLBACK,
+     );
+     return $items;
+}
+
+function properties_webform_submission_presave($node, &$submission) {
+  if($node->nid==12)
+  {
+  $submission->data[34][0]=$_SESSION['rebatetitle'];
+  $submission->data[28][0]=$_SESSION['processid'];
+  }
+  } 
+function properties_exe($id) {
+    $ar = array('uid' => $id, 'propertiesloaded' => profile2_load_by_user($id));
+    return theme('propertiesbuild', array('collected' => $ar));
+}
+
+function theme_propertiesbuild($variables) {
+  return $variables['collected'];
+}

@@ -1,0 +1,30 @@
+<?php
+function searchdebate_theme() {
+  return array(
+    'searchdebatebuild' => array(
+        'variables' => array('searchdebateloaded' => array()),
+        'template' => 'searchdebate',
+     ),
+  );
+}
+
+function searchdebate_menu() {
+    $items['searchdebate'] = array(
+       'title' => 'User page',
+       'description' => 'User page',
+       'page callback' => 'searchdebate_exe',
+       'access callback' => TRUE,
+       'type' => MENU_CALLBACK,
+     );
+     return $items;
+}
+
+
+function searchdebate_exe($id) {
+    $ar = array('uid' => $id, 'searchdebateloaded' => profile2_load_by_user($id));
+    return theme('searchdebatebuild', array('collected' => $ar));
+}
+
+function theme_searchdebatebuild($variables) {
+  return $variables['collected'];
+}

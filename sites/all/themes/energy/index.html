@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Energy Outlet</title>
+<link href="css/energyoutlet.css" rel="stylesheet" type="text/css">
+<!-------------------------tabs---------------------------->
+<script src="js/jquery-1.7.2.min.js"></script>
+<script>
+$(document).ready(function() {
+    $("#content").find("[id^='tab']").hide(); // Hide all content
+    $("#tabs li:first").attr("id","current"); // Activate the first tab
+    $("#content #tab1").fadeIn(); // Show first tab's content
+    
+    $('#tabs a').click(function(e) {
+        e.preventDefault();
+        if ($(this).closest("li").attr("id") == "current"){ //detection for current tab
+         return;       
+        }
+        else{             
+          $("#content").find("[id^='tab']").hide(); // Hide all content
+          $("#tabs li").attr("id",""); //Reset id's
+          $(this).parent().attr("id","current"); // Activate this
+          $('#' + $(this).attr('name')).fadeIn(); // Show content for the current tab
+        }
+    });
+});
+</script>
+<!-------------------------tabs---------------------------->
+</head>
+
+<body>
+<div id="mainwrap">
+<div class="contacts"><span class="conts"><img src="images/contact_icon.png">&nbsp;&nbsp;1- 844 - Erebate</span> <span class="or">or</span> <span class="cont-no">1-844-373-2383</span></div>
+<div id="wrap">
+<div class="column-left">
+<div class="logo" > <img src="images/logo.jpg"><br>
+"Plugin to Savings"</div>
+<div id="nav">
+<!--icons menus-->
+<div id="Nav" >
+  <ul>
+    <li><a class="home" href="#">Rebate News</a></li>
+    <li><a class="about" href="#">Search Rebate</a></li>
+    <li><a class="services" href="#">Start Saving Now</a></li>
+    <li><a class="portfolio" href="#">About Us</a></li>
+    <li><a class="blog" href="#">Contact Us</a></li>
+</ul>
+</div>
+<!--icons menus-->
+</div>
+<div class="subs">Subscribe to our newsletter and always receive the latest information and news about rebates and new rebates offered..</div>
+<div class="ser-bg">
+<div id="ser"><input name="" type="text" class="search"  placeholder="EMAIL"></div>
+<div id="sub"><input name="Submit" type="button" value="Submit" class="sub-btns"></div>
+</div>
+<div id="maintab">
+
+<ul id="tabs">
+    <li><a href="#" name="tab1">One</a></li>
+    <li><a href="#" name="tab2">Two</a></li>
+       
+</ul>
+
+<div id="content"> 
+    <div id="tab1">
+        <table width="100%" border="0" cellspacing="0" cellpadding="4">
+  <tr>
+    <td colspan="2"> <input name="" type="text" class="username"  placeholder="Username"></td>
+    </tr>
+  <tr>
+    <td colspan="2"><input name="" type="password" class="password"  ></td>
+    </tr>
+  <tr>
+    <td><div class="chk-cor">
+    
+    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td><input type="checkbox" id="checkbox79"  checked="checked"/></td>
+    <td><div class="css-label"><a href="#">Rember Me</a></div></td>
+  </tr>
+</table>
+
+    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td>
+    
+    <table class="funky">
+				<tr>
+					<td>
+                    
+						
+						<label for="checkbox79" name="checkbox79_lbl" class="css-label lrg klaus"></label>
+					</td>
+				</tr>
+				
+			</table></td>
+    </tr>
+</table>
+</div></td>
+    <td><input name="" type="button" class="sing_btn" value="Sing Up"></td>
+  </tr>
+</table>
+
+  </div>
+    <div id="tab2">
+       lorem ipsum lorem ipsum
+          
+    </div>
+</div>
+</div>
+</div>
+<div class="column-right">
+<div id="banner">
+<img src="images/banner.jpg"></div>
+<div id="sub-icon">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr class="hd-color">
+    <td height="32" align="right" class="line_bg">Rebate News </td>
+    <td class="line_bg">Getting Started</td>
+    <td class="line_bg">Customer Testimonials</td>
+    <td >Energy Saving Tips</td>
+  </tr>
+  <tr>
+    <td height="140" align="left" valign="bottom"><img src="images/customers.png" width="162" height="133"></td>
+    <td align="center" valign="bottom"><img src="images/energy.png" width="160" height="132"></td>
+    <td align="center" valign="bottom"><img src="images/wedo.png" width="160" height="133"></td>
+    <td align="right" valign="bottom"><img src="images/rabates.png" width="159" height="133"></td>
+  </tr>
+</table>
+
+</div>
+</div>
+</div></div>
+<div id="mainfooter">
+<div class="footer-line"></div>
+<div id="footer">
+<div id="terms"><span class="terms"><a href="#">Terms and Conditions</a></span><br>
+<br>
+<br>
+<br>
+<br><br>
+<br>
+
+<span class="copy">�Copyright Energy Outlet 2014, 
+<br>
+All Rights Reserved</span></div>
+<div id="footer-nav">
+<div id="ftr_nav">
+<ul>CATEGORIES
+<li><a href="#">HVAC</a></li>
+<li><a href="#">Solar</a></li>
+<li><a href="#">Refrigeration</a></li>
+<li><a href="#">Lighting</a></li>
+<li><a href="#">Electrical</a></li>
+<li><a href="#">Roofing</a></li>
+<li><a href="#">Controls </a></li>
+<li><a href="#">General Contractors</a></li>
+</ul>
+</div>
+
+</div>
+<div id="footer-nav">
+<div id="ftr_nav">
+<ul>NAVIGATION
+<li><a href="#">Rebate News </a></li>
+<li><a href="#">Search Rebates</a></li>
+<li><a href="#">Start Saving Now</a></li>
+<li><a href="#">About US</a></li>
+<li><a href="#">Contact Us</a></li>
+</ul>
+</div>
+</div>
+<div id="adrs">
+<span class="cont">
+CONTACT INFO</span><br>
+<span class="adr">
+Toll Free: 1-844-ERebate<br>
+26898 Highway 189 | Suite D<br>
+PO Box 2307 | Blue Jay CA 92317<br>
+w w w.energyR EBATE o utlet.com</span></div>
+</div></div>
+</body>
+</html>

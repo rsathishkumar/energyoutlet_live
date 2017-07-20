@@ -1,0 +1,219 @@
+<?php
+
+/**
+ * Implements hook_theme().
+ */
+function webform_steps_theme() {
+  $theme['webform_steps'] = array(
+    'render element' => 'element',
+  );
+  return $theme;
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * Add webform_steps to the top of the webform.
+ * Add submit and validate handlers to handle the step-switching.
+ */
+function webform_steps_form_webform_client_form_alter(&$form, &$form_state, $form_id) {
+  $page_count = $form['details']['page_count']['#value'];
+  if($page_count > 1) {
+    array_unshift($form['#submit'], 'webform_steps_navigation_callback');
+
+    // Sadly there is nothing we can do about webform-form.tpl.php rendering
+    // $form['submitted'] above all other form elements.
+    $form['webform_steps'] = array(
+      '#type' => 'container',
+      '#theme' => 'webform_steps',
+      '#weight' => -1000,
+      '#attributes' => array('class' => array('webform-steps-wrapper')),
+    );
+    // Hitting enter to submit always submits via the first button in the markup.
+    // We want this to always be the next button.
+    $button = isset($form['actions']['submit']) ? $form['actions']['submit'] : $form['actions']['next'];
+    unset($button['#id']);
+    $form['webform_steps']['next'] = array(
+      '#attributes' => array('class' => array('element-invisible')),
+      '#weight' => -100,
+    ) + $button;
+    // The actual webform steps.
+    $form['webform_steps'] += _webform_steps_generate($form, $form_state);
+  }
+}
+
+/**
+ * Generate the form-array for the webform step buttons.
+ */
+function _webform_steps_generate($form, $form_state) {
+  $components = $form['#node']->webform['components'];
+
+  $pagebreak_names = array();
+  $fieldset_weights = array();
+  foreach ($components as $component) {
+    $page_num = $component['page_num'];
+    // use the fieldset with the lowest weight, omit nested fieldsets
+    if($component['type'] === 'fieldset' && $component['pid'] === '0') {
+      if(!isset($fieldset_weights[$page_num]) || $component['weight'] < $fieldset_weights[$page_num]) {
+        $pagebreak_names[$page_num] = $component['name'];
+        $fieldset_weights[$page_num] = $component['weight'];
+      }
+    }
+    // use the title of the page break (will be overriden by any fieldset
+    // on the same step page)
+    if($component['type'] === 'pagebreak') {
+      // set it only if not set already by a step name field
+      if(!isset($pagebreak_names[$page_num])) {
+        $pagebreak_names[$page_num] = $component['name'];
+      }
+    }
+  }
+  $count = $form['details']['page_count']['#value'];
+  $current = $form['details']['page_num']['#value'];
+  $finished = isset($form_state['steps_finished']) ? $form_state['steps_finished'] : 0;
+
+  $steps = array();
+  $button_builder = new WebformStepsButtonBuilder($current, $finished);
+  $use_ajax = module_exists('webform_ajax') && $form['#node']->webform['webform_ajax'];
+  if ($use_ajax) {
+    $button_builder->activateAjax($form_state, $form);
+  }
+
+  for ($i = 1; $i <= $count; $i++) {
+    $title = isset($pagebreak_names[$i]) ? $pagebreak_names[$i] : t('No label');
+    $steps['btn-' . $i] = $button_builder->buildButton($i, $title);
+  }
+
+  return $steps;
+}
+
+class WebformStepsButtonBuilder {
+  protected $default = array();
+  protected $current = 0;
+  protected $finished = 0;
+  public function __construct($current, $finished) {
+    $this->current = $current;
+    $this->finished = $finished;
+    $this->default = array(
+      '#type' => 'submit',
+      '#attributes' => array('class' => array('step-button')),
+      '#name' => 'step-btn',
+    );
+  }
+
+  public function activateAjax(&$form_state, &$form) {
+    // generate wrapper id like in webform_ajax.module
+    // we have to create it on our own because webform_ajax runs after us
+    $wrapper = '';
+    if (isset($form_state['values']['webform_ajax_wrapper_id'])) {
+      $wrapper = $form_state['values']['webform_ajax_wrapper_id'];
+    }
+    elseif (isset($form['#node']->webform['webform_ajax_wrapper_id'])) {
+      $wrapper = $form['#node']->webform['webform_ajax_wrapper_id'];
+    }
+    else {
+      // At last, generate a unique ID.
+      $wrapper = 'webform-ajax-wrapper-' . $form['#node']->nid;
+    }
+
+    $this->default['#ajax'] = array(
+      'effect' => 'none',
+      'callback' => 'webform_ajax_callback',
+      'wrapper' => $wrapper,
+      'progress' => array(
+        'message' => '',
+        'type' => 'none',
+      ),
+    );
+  }
+
+  public function buildButton($i, $title) {
+    $button = $this->default;
+    $wrapper_classes = array();
+    if($i < $this->current) {
+      $wrapper_classes[] = 'previous';
+      $button['#validate'] = array();
+      $button['#attributes']['formnovalidate'] = 'formnovalidate';
+    }
+    if($i === $this->current) {
+      $wrapper_classes[] = 'current';
+    }
+    if ($i == 1) {
+      $wrapper_classes[] = 'first';
+    }
+    if($i > ($this->finished + 1)) {
+      if ($i == $this->finished + 2) {
+        $wrapper_classes[] = 'first-disabled';
+      }
+      $wrapper_classes[] = 'disabled';
+      $button['#attributes']['class'][] = 'disabled';
+      $button['#attributes']['disabled'] = 'disabled';
+    }
+    if (isset($button['#ajax'])) {
+      $button['#id'] = drupal_html_id('edit-webform-ajax-btn-' . $i);
+    }
+    $button += array(
+      '#value' => $title,
+      '#page' => $i,
+      '#wrapper_classes' => $wrapper_classes,
+    );
+    return $button;
+  }
+}
+
+/**
+ * Submit callback for the step button
+ *
+ * We simulate next and previous button clicks for
+ * @see webform_client_form_pages().
+ */
+function webform_steps_navigation_callback(&$form, &$form_state) {
+  $submitted_page = $form['details']['page_num']['#value'];
+  $button = &$form_state['clicked_button'];
+
+  if (isset($button['#page'])) {
+    $new_page = (int) $button['#page'];
+    if ($submitted_page <= $new_page && $new_page > 1) {
+      // simulate click on next.
+      $button['#parents'][] =  'next';
+      // Failsafe to avoid jumping over steps.
+      $form_state['webform']['page_num'] = min($new_page - 1, $submitted_page);
+      $form_state['steps_finished'] = $submitted_page;
+    } else {
+      // simulate click on previous.
+      $button['#parents'][] =  'previous';
+      $form_state['webform']['page_num'] = $new_page + 1;
+      // prohibit jumps of more than one step forward at once, after the user
+      // jumped back, otherwise one could skip the validations of a step.
+      $form_state['steps_finished'] = $new_page;
+    }
+    $form_state['values']['op'] = 'next';
+  }
+  elseif (end($button['#parents']) == 'next') {
+    $form_state['steps_finished'] = $submitted_page;
+  }
+  else {
+    $form_state['steps_finished'] = $submitted_page - 1;
+  }
+
+  return $form;
+}
+
+function theme_webform_steps($variables) {
+  $element = &$variables['element'];
+  $buttons = element_children($element, FALSE);
+  $output = array();
+  foreach ($buttons as $key) {
+    $button = &$element[$key];
+    if ($key == 'next') {
+      $output[] = render($button);
+    }
+    else {
+      $button = &$element[$key];
+      $classes = 'webform-step ' . implode(' ', $button['#wrapper_classes']);
+      $rendered = render($button);
+      $output[] = "<span class=\"$classes\"><span>{$button['#value']}{$rendered}</span></span>";
+    }
+  }
+  return implode('', $output);
+}

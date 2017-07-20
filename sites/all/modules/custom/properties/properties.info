@@ -1,0 +1,5 @@
+name = Properties
+description = Properties
+project = Custom
+core = 7.x
+
