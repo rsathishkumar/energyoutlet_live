@@ -1861,6 +1861,7 @@ padding:10px 10px 10px 30px;
 	-moz-border-radius:6px;
 	color:#002A5C;
 	-khtml-border-radius:6px;
+	overflow:auto;
 }
 .dash_thd {
 	height:50px;

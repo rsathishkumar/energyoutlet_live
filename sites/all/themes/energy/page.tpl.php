@@ -261,13 +261,8 @@ font-family: Arial, Helvetica, sans-serif;
             <div class="mes-cent"> Message Center
                       <div class="mes-wht">
                 <?php 
-echo "<ul >";
-foreach($messages_web as $mess)
-{
-echo "<li class='mess'>".$mess."</li>";
-}
+print_r($account->field_message[LANGUAGE_NONE][0]['value']);
 
-echo "<ul>";
 ?>
               </div>
                     </div>
