@@ -179,7 +179,7 @@ else{?>
                   <div id="Nav" > <?php print render($page['sidebar_first']); ?>
             <?php
 global $user;
-
+$account = user_load($user);
 module_load_include('inc','webform','includes/webform.submissions');
 $subs = webform_get_submissions(array('nid'=>13, 'uid' => $user->uid));
 if($subs)
@@ -261,7 +261,7 @@ font-family: Arial, Helvetica, sans-serif;
             <div class="mes-cent"> Message Center
                       <div class="mes-wht">
                 <?php 
-print_r($account->field_message[LANGUAGE_NONE][0]['value']);
+echo $account->field_message[LANGUAGE_NONE][0]['value'];
 
 ?>
               </div>
