@@ -179,7 +179,7 @@ else{?>
                   <div id="Nav" > <?php print render($page['sidebar_first']); ?>
             <?php
 global $user;
-$account = user_load($user);
+$account = user_load($user->uid);
 module_load_include('inc','webform','includes/webform.submissions');
 $subs = webform_get_submissions(array('nid'=>13, 'uid' => $user->uid));
 if($subs)
