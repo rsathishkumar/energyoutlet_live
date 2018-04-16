@@ -179,7 +179,7 @@ else{?>
                   <div id="Nav" > <?php print render($page['sidebar_first']); ?>
             <?php
 global $user;
-$account = user_load($user->uid);
+
 module_load_include('inc','webform','includes/webform.submissions');
 $subs = webform_get_submissions(array('nid'=>13, 'uid' => $user->uid));
 if($subs)
@@ -261,8 +261,21 @@ font-family: Arial, Helvetica, sans-serif;
             <div class="mes-cent"> Message Center
                       <div class="mes-wht">
                 <?php 
-echo $account->field_message[LANGUAGE_NONE][0]['value'];
+echo "<ul >";
+foreach($messages_web as $mess)
+{
+echo "<li class='mess'>".$mess."</li>";
+}
 
+echo "<ul>";
+?>
+              </div>
+                    </div>
+                    <div class="mes-cent"> Common Rebate Programs
+                      <div class="mes-wht common_rebate">
+                <?php
+$view = views_get_view('common_rebate');
+echo $view->render('default');
 ?>
               </div>
                     </div>
@@ -475,7 +488,7 @@ array_push($docs,$component['cid']);
 }
 }
 
-echo '<table class="views-table cols-3">  
+echo '<table class="views-table cols-3">
   <thead><tr>
     <th class="views-field views-field-value-1">Rebate Title </td>
     <th class="views-field views-field-value-1">Documents</td>
@@ -498,7 +511,7 @@ $c=0;
 	  $c++;
 	}
   }
-  
+
   $sizes[$doc]=$c;
 }
 }
@@ -517,7 +530,7 @@ foreach ($webnode->webform['components'] as $key => $component) {
         <tr  class="even">
           <td>'.$component['name'].'</td>';
 		 echo ' <td ><table >';
-       
+
 	   $len=sizeof($sub->data[$component['cid']]);
 	        for($j=0;$j<$len;$j++)
 {
@@ -530,32 +543,32 @@ $url = file_create_url($uri);
 	     echo ' <tr class="even">
             <td><a href="'.$url.'">'.$file->filename.'</a></td>
               </tr>   ';
-			  }}           
+			  }}
           echo '</table></td>';
-		  
-		  
-		  
-		  
+
+
+
+
 		  echo '</tr>
           </table>';
 	}
 
 
  }
-	}	  
+	}
 }echo '</td></tr>
 </table>';
-  
+
 }
 }
 else {
   // Not logged in
   if($user->uid)
   {
-   
+
      print render($page['content']);
   }
- 
+
   else
   {
   header('Location:'.$base_url.'/user');
